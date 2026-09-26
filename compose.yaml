@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-clima}
+      POSTGRES_USER: ${POSTGRES_USER:-clima}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    ports: ["127.0.0.1:${POSTGRES_PORT:-15432}:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      retries: 20
+  mongo:
+    image: mongo:7
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-clima}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?Set MONGO_ROOT_PASSWORD in .env}
+    ports: ["127.0.0.1:${MONGO_PORT:-27017}:27017"]
+    volumes: [mongodata:/data/db]
+  cassandra:
+    image: cassandra:5
+    environment:
+      CASSANDRA_CLUSTER_NAME: clima-local
+      MAX_HEAP_SIZE: 1G
+      HEAP_NEWSIZE: 256M
+    ports: ["127.0.0.1:${CASSANDRA_PORT:-9042}:9042"]
+    volumes:
+      - cassdata:/var/lib/cassandra
+      - ./db/cassandra.cql:/schema.cql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -e 'DESCRIBE KEYSPACES' >/dev/null"]
+      interval: 15s
+      retries: 30
+  redis:
+    image: redis:7
+    command: ["sh", "-c", "exec redis-server --requirepass \"$$REDIS_PASSWORD\" --appendonly yes"]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD in .env}
+    ports: ["127.0.0.1:${REDIS_PORT:-6379}:6379"]
+    volumes: [redisdata:/data]
+volumes:
+  pgdata:
+  mongodata:
+  cassdata:
+  redisdata:

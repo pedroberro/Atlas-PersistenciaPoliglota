@@ -1,0 +1,31 @@
+spring:
+  config:
+    import: optional:file:${APP_ENV_FILE:.env}[.properties]
+  datasource:
+    url: ${JDBC_URL:jdbc:postgresql://localhost:15432/clima}
+    username: ${POSTGRES_USER:clima}
+    password: ${POSTGRES_PASSWORD}
+  data:
+    mongodb:
+      uri: ${MONGO_URI:mongodb://${MONGO_ROOT_USER:clima}:${MONGO_ROOT_PASSWORD}@localhost:27017/clima?authSource=admin}
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+  cassandra:
+    contact-points: ${CASSANDRA_HOST:127.0.0.1}
+    port: ${CASSANDRA_PORT:9042}
+    local-datacenter: ${CASSANDRA_DC:datacenter1}
+    keyspace-name: clima
+    schema-action: none
+  jackson:
+    time-zone: UTC
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: never
+app:
+  cors-origin: ${CORS_ORIGIN:http://localhost:5173}
+  session-hours: 12
+  bootstrap-admin-email: ${BOOTSTRAP_ADMIN_EMAIL:}
+  bootstrap-admin-password: ${BOOTSTRAP_ADMIN_PASSWORD:}
